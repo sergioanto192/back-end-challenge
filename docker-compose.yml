@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # Serviço do PHP + Apache
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: api_test
+    depends_on:
+      - db
+    volumes:
+      - .:/var/www/html  # Mapeia a raiz do projeto local para o contêiner
+    ports:
+      - "8081:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: api_promobit
+      DB_USER: sergio
+      DB_PASSWORD: admin
+
+  # Serviço do PostgreSQL
+  db:
+    image: postgres:13
+    container_name: api_test_db
+    environment:
+      POSTGRES_USER: sergio
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: api_promobit
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5433:5432"
+
+volumes:
+  postgres_data:
